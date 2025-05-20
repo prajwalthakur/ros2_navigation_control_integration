@@ -1,0 +1,7 @@
+<library path="custom_diff_controller">
+  <class name="custom_diff_controller/CustomDiffController" type="custom_diff_controller::CustomDiffController" base_class_type="controller_interface::ControllerInterface">
+  <description>
+    The Custom differential drive controller transforms linear and angular velocity messages into signals for each wheel(s) for a differential drive robot.
+  </description>
+  </class>
+</library>

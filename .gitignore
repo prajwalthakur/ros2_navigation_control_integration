@@ -1,0 +1,75 @@
+# === ROS2 + Colcon build ===
+build/
+install/
+log/
+*.log
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.so
+*.egg-info/
+.eggs/
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# === C++ ===
+*.o
+*.a
+*.so
+*.so.*
+*.dSYM/
+*.d
+
+# === CMake ===
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# === Colcon metadata ===
+.colcon/
+
+# === ROS2 launch + params ===
+*.launch.py~
+*.yaml~
+*.rviz
+
+# === VSCode (optional) ===
+.vscode/
+*.code-workspace
+
+# === Python virtual env (optional) ===
+venv/
+env/
+
+# === JetBrains IDEs (optional) ===
+.idea/
+
+# === System files ===
+.DS_Store
+Thumbs.db
+
+# === ROS2 security (optional) ===
+security/
+
+# === ROS2 test logs ===
+test_results/
+
+# === Docker (optional) ===
+*.dockerfile
+*.container
+docker-compose*.yml
+
+# === Snapcraft (optional) ===
+*.snap
+*.snapcraft
+
+# === Custom ===
+*.orig
+*.rej
