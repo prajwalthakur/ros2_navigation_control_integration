@@ -327,11 +327,6 @@ controller_interface::CallbackReturn CustomDiffController::on_configure(const rc
         velocity_command_subscriber_ = get_node()->create_subscription<Twist>(
             DEFAULT_COMMAND_TOPIC, rclcpp::SystemDefaultsQoS(),
             [this](const std::shared_ptr<Twist> msg)->void {
-                RCLCPP_INFO(
-                get_node()->get_logger(),
-                "in stampedddr = %.3f  rad/s | angular = %.3f  rad/s",
-                msg->twist.linear.x,
-                msg->twist.angular.z);
 
                 if (!subscriber_is_active_){
                     RCLCPP_WARN(get_node()->get_logger(),"CANT ACCEPT new commands, subscriber is not active");
@@ -350,22 +345,17 @@ controller_interface::CallbackReturn CustomDiffController::on_configure(const rc
          DEFAULT_COMMAND_UNSTAMPED_TOPIC, rclcpp::SystemDefaultsQoS(),
         [this](const std::shared_ptr<geometry_msgs::msg::Twist> msg) -> void
         {
-            RCLCPP_INFO(
-            get_node()->get_logger(),
-            "in subscriber = %.3f  rad/s | angular = %.3f  rad/s",
-            msg->linear.x,
-            msg->angular.z);
           if (!subscriber_is_active_)
           {
             RCLCPP_WARN(
               get_node()->get_logger(), "Can't accept new commands. subscriber is inactive");
             return;
           }
-            RCLCPP_INFO(
-            get_node()->get_logger(),
-            "in subscriber = %.3f  rad/s | angular = %.3f  rad/s",
-            msg->linear.x,
-            msg->angular.z);
+            // RCLCPP_INFO(
+            // get_node()->get_logger(),
+            // "in subscriber = %.3f  rad/s | angular = %.3f  rad/s",
+            // msg->linear.x,
+            // msg->angular.z);
             // Write fake header in the stored stamped command
             auto twist_stamped = std::make_shared<Twist>();  // valid object
             //std::shared_ptr<Twist> twist_stamped; // creates null pointer
@@ -375,7 +365,7 @@ controller_interface::CallbackReturn CustomDiffController::on_configure(const rc
         });
         RCLCPP_INFO(
         get_node()->get_logger(),
-        "subsriber-createdddddddddddddd");
+        "subsriber-created");
     }
     // initialize odometry publisher and message
     odometry_publisher_ = get_node()->create_publisher<nav_msgs::msg::Odometry>(

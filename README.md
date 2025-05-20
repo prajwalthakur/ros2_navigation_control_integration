@@ -1,19 +1,31 @@
-# MPPI-Based Reach-Avoid Simulation integrated with NAV2 and ROS2_CONTROL Package
+# ROS2 Navigation And control Package Integration
 
-This repository provides a simulation framework for Model Predictive Path Integral (MPPI) control in a reach-avoid setting using ROS2, ROS2_CONTROL, NAV2 and with Gazebo integration. The simulation showcases real-time obstacle avoidance and goal-directed planning.
+This repository demonstrates the integration of ROS2 Control, Nav2, and Gazebo for autonomous mobile robot navigation.
+
+
+## Objectives
+Deepen understanding of system-level integration in ROS2
+
+### Learn to configure and use:
+
+- ros2_control for hardware abstraction and control
+
+- Nav2 for autonomous navigation
+
+- costmap_2d for dynamic obstacle mapping and avoidance
 
 ## Highlights: 
-- Python-based simulation with Matplotlib for easy visualization and debugging
-
-- ROS2 and Gazebo support for realistic robotic simulations with TurtleBot3
-
-- GPU-accelerated planning (via JAX ), runs up to 20 Hz
+- ROS2 and Gazebo support for realistic robotic simulations with a differential drive robot
 
 - Modular design with configurable parameters via YAML
 
 - Dockerized setup for consistent environments
 
 - Can be adapted to any vehicle dynamics/kinematics equation, just need to change the dimension of control inputs, states and  ODE equation for the dynamics.
+
+- Real-time obstacle avoidance
+
+- Fully mapless operation (no prior map required)
 
 ## System Requirements:
 
@@ -49,8 +61,15 @@ To launch multiple shells in docker container **ros2_nav**, run the following
 
 make sure you are in ros2 workspace.
 1. change the directory to `root/workspace/`
-2. run `colcon build --symlink-install`
-3. source `install/setup.bash`
+2. run `rosdep install --from-paths src --ignore-src  -r  -y`
+3. run `colcon build --symlink-install`
+4. source `install/setup.bash`
+5. run `ros2 launch diff_drive_control launch_sim.launch.py world:=/root/workspace/src/diff_drive/worlds/obstacles.world`
+6. run `rviz2 -d /root/workspace/src/diff_drive/config/main.rviz` to launch the rviz
+7. run `ros2 launch diff_drive_control navigation_launch.py` to launch the controller server, which launch the costmap to generate the 2d costmap
+     
+     
+     ![alt text](images/local_costmap.png)
 
 
 <!-- ## Steps to run the simulation in simple python and Matplotlib simulation
@@ -124,6 +143,8 @@ If the system doesnt support CUDA, then, in ros2_nav.Dockerfile:
 - Change the jax-cuda installation from `RUN pip3 install  "jax[cuda12]" ` to  `RUN pip3 install "jax[cpu]" -f https://storage.googleapis.com/jax-releases/jax_releases.html`
 -In `deploy/devel.sh` change mode from `"gpu"` to `"cpu"` -->
 
+### Note:
+The robot description is forked from [https://github.com/joshnewans/articubot_one](https://github.com/joshnewans/articubot_one) 
 ## License
 MIT License (Non-Commercial)
 
