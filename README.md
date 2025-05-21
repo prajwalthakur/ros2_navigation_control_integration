@@ -1,7 +1,6 @@
 # ROS2 Navigation And control Package Integration
 
-This repository demonstrates the integration of ROS2 Control, Nav2, and Gazebo for autonomous mobile robot navigation.
-
+This repository demonstrates the integration of ROS2 Control, Nav2, and Gazebo for autonomous mobile robot navigation for a maplless navigation.
 
 ## Objectives
 Deepen understanding of system-level integration in ROS2

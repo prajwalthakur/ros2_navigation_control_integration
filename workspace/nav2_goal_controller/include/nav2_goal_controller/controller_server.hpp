@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef NAV2_CONTROLLER__CONTROLLER_SERVER_HPP_
-#define NAV2_CONTROLLER__CONTROLLER_SERVER_HPP_
+#ifndef nav2_goal_controller__CONTROLLER_SERVER_HPP_
+#define nav2_goal_controller__CONTROLLER_SERVER_HPP_
 
 #include <memory>
 #include <string>
@@ -21,43 +21,63 @@
 #include <unordered_map>
 #include <vector>
 #include <mutex>
+#include <chrono>
+#include <utility>
+#include <limits>
 
 #include "nav2_core/controller.hpp"
 #include "nav2_core/progress_checker.hpp"
+#include "nav2_core/exceptions.hpp"
 #include "nav2_core/goal_checker.hpp"
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
 #include "tf2_ros/transform_listener.h"
 #include "nav2_msgs/action/follow_path.hpp"
+#include "nav2_msgs/action/follow_path.hpp"
+#include "nav2_msgs/action/navigate_to_goal.hpp"
 #include "nav2_msgs/msg/speed_limit.hpp"
 #include "nav_2d_utils/odom_subscriber.hpp"
+#include "nav_2d_utils/conversions.hpp"
+#include "nav_2d_utils/tf_help.hpp"
+#include "nav2_util/node_utils.hpp"
+#include "nav2_util/geometry_utils.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav2_util/simple_action_server.hpp"
 #include "nav2_util/robot_utils.hpp"
 #include "pluginlib/class_loader.hpp"
 #include "pluginlib/class_list_macros.hpp"
+#include "lifecycle_msgs/msg/state.hpp"
 
-namespace nav2_controller
+
+
+#include "geometry_msgs/msg/twist.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+
+
+
+
+namespace nav2_goal_controller
 {
 
 class ProgressChecker;
 /**
- * @class nav2_controller::ControllerServer
+ * @class nav2_goal_controller::ControllerServer
  * @brief This class hosts variety of plugins of different algorithms to
  * complete control tasks from the exposed FollowPath action server.
  */
 class ControllerServer : public nav2_util::LifecycleNode
 {
 public:
+
   using ControllerMap = std::unordered_map<std::string, nav2_core::Controller::Ptr>;
   using GoalCheckerMap = std::unordered_map<std::string, nav2_core::GoalChecker::Ptr>;
 
   /**
-   * @brief Constructor for nav2_controller::ControllerServer
+   * @brief Constructor for nav2_goal_controller::ControllerServer
    * @param options Additional options to control creation of the node.
    */
   explicit ControllerServer(const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
   /**
-   * @brief Destructor for nav2_controller::ControllerServer
+   * @brief Destructor for nav2_goal_controller::ControllerServer
    */
   ~ControllerServer();
 
@@ -107,13 +127,16 @@ protected:
    */
   nav2_util::CallbackReturn on_shutdown(const rclcpp_lifecycle::State & state) override;
 
-  using Action = nav2_msgs::action::FollowPath;
-  using ActionServer = nav2_util::SimpleActionServer<Action>;
-
-  using ActionToPose = nav2_msgs::action::ComputePathToPose;
-
+  // using Action = nav2_msgs::action::FollowPath;
+  // using ActionServer = nav2_util::SimpleActionServer<Action>;
+  
+  using ActionToGoal = nav2_msgs::action::NavigateToGoal;
+  using ActionToGoalServer = nav2_util::SimpleActionServer<ActionToGoal>;
   // Our action server implements the FollowPath action
-  std::unique_ptr<ActionServer> action_server_;
+  std::unique_ptr<ActionToGoalServer> action_server_;
+
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr cmd_vel_stamped_pub_;
 
   /**
    * @brief FollowPath action server callback. Handles action server updates and
@@ -149,6 +172,13 @@ protected:
    * @param path Path received from action server
    */
   void setPlannerPath(const nav_msgs::msg::Path & path);
+  
+  /**
+   * @brief publish a constant velocity to check the controller server functionality
+   * @param goal goal recieved from action server
+   */
+  void publishPseudoVel(const geometry_msgs::msg::PoseStamped & goal);
+    
   /**
    * @brief Calculates velocity and publishes to "cmd_vel" topic
    */
@@ -167,6 +197,11 @@ protected:
    * @brief Calls velocity publisher to publish zero velocity
    */
   void publishZeroVelocity();
+  /**
+   * @brief calls velocity publisher to publish constant velocity
+   */
+  void ControllerServer::publishConstantVelocity()
+
   /**
    * @brief Checks if goal is reached
    * @return true or false
@@ -274,6 +309,6 @@ private:
   void speedLimitCallback(const nav2_msgs::msg::SpeedLimit::SharedPtr msg);
 };
 
-}  // namespace nav2_controller
+}  // namespace nav2_goal_controller
 
-#endif  // NAV2_CONTROLLER__CONTROLLER_SERVER_HPP_
+#endif  // nav2_goal_controller__CONTROLLER_SERVER_HPP_

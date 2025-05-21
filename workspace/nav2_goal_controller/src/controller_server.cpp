@@ -12,36 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <chrono>
-#include <vector>
-#include <memory>
-#include <string>
-#include <utility>
-#include <limits>
-
-#include "lifecycle_msgs/msg/state.hpp"
-#include "nav2_core/exceptions.hpp"
-#include "nav_2d_utils/conversions.hpp"
-#include "nav_2d_utils/tf_help.hpp"
-#include "nav2_util/node_utils.hpp"
-#include "nav2_util/geometry_utils.hpp"
-#include "nav2_controller/controller_server.hpp"
+#include "nav2_goal_controller/controller_server.hpp"
 
 using namespace std::chrono_literals;
 using rcl_interfaces::msg::ParameterType;
 using std::placeholders::_1;
 
-namespace nav2_controller
+namespace nav2_goal_controller
 {
 
 ControllerServer::ControllerServer(const rclcpp::NodeOptions & options)
 : nav2_util::LifecycleNode("controller_server", "", options),
   progress_checker_loader_("nav2_core", "nav2_core::ProgressChecker"),
   default_progress_checker_id_{"progress_checker"},
-  default_progress_checker_type_{"nav2_controller::SimpleProgressChecker"},
+  default_progress_checker_type_{"nav2_goal_controller::SimpleProgressChecker"},
   goal_checker_loader_("nav2_core", "nav2_core::GoalChecker"),
   default_goal_checker_ids_{"goal_checker"},
-  default_goal_checker_types_{"nav2_controller::SimpleGoalChecker"},
+  default_goal_checker_types_{"nav2_goal_controller::SimpleGoalChecker"},
   lp_loader_("nav2_core", "nav2_core::Controller"),
   default_ids_{"FollowPath"},
   default_types_{"dwb_core::DWBLocalPlanner"}
@@ -196,9 +183,9 @@ ControllerServer::on_configure(const rclcpp_lifecycle::State & /*state*/)
   vel_publisher_ = create_publisher<geometry_msgs::msg::Twist>("/diff_controller/cmd_vel_unstamped", 1);
 
   // Create the action server that we implement with our followPath method
-  action_server_ = std::make_unique<ActionServer>(
+  action_server_ = std::make_unique<ActionToGoalServer>(
     shared_from_this(),
-    "follow_path",
+    "goal_pose",
     std::bind(&ControllerServer::computeControl, this),
     nullptr,
     std::chrono::milliseconds(500),
@@ -376,8 +363,8 @@ void ControllerServer::computeControl()
       action_server_->terminate_current();
       return;
     }
-
-    setPlannerPath(action_server_->get_current_goal()->path);
+    publishPseudoVel(action_server_->get_current_goal()->goal)
+    //setPlannerPath(action_server_->get_current_goal()->path);
     progress_checker_->reset();
 
     last_valid_cmd_time_ = now();
@@ -437,6 +424,10 @@ void ControllerServer::computeControl()
   action_server_->succeeded_current();
 }
 
+// publish a constant velocity to check the controller server functionality
+void ControllerServer::publishPseudoVel(const geometry_msgs::msg::PoseStamped & goal){
+  ControllerServer::publishConstantVelocity();
+}
 void ControllerServer::setPlannerPath(const nav_msgs::msg::Path & path)
 {
   RCLCPP_DEBUG(
@@ -581,6 +572,22 @@ void ControllerServer::publishZeroVelocity()
   publishVelocity(velocity);
 }
 
+void ControllerServer::publishConstantVelocity()
+{
+  geometry_msgs::msg::TwistStamped velocity;
+  velocity.twist.angular.x = 0;
+  velocity.twist.angular.y = 0;
+  velocity.twist.angular.z = 0.02;
+  velocity.twist.linear.x = 0.2;
+  velocity.twist.linear.y = 0;
+  velocity.twist.linear.z = 0;
+  velocity.header.frame_id = costmap_ros_->getBaseFrameID();
+  velocity.header.stamp = now();
+  publishVelocity(velocity);
+}
+
+
+
 bool ControllerServer::isGoalReached()
 {
   geometry_msgs::msg::PoseStamped pose;
@@ -667,11 +674,11 @@ ControllerServer::dynamicParametersCallback(std::vector<rclcpp::Parameter> param
   return result;
 }
 
-}  // namespace nav2_controller
+}  // namespace nav2_goal_controller
 
 #include "rclcpp_components/register_node_macro.hpp"
 
 // Register the component with class_loader.
 // This acts as a sort of entry point, allowing the component to be discoverable when its library
 // is being loaded into a running process.
-RCLCPP_COMPONENTS_REGISTER_NODE(nav2_controller::ControllerServer)
+RCLCPP_COMPONENTS_REGISTER_NODE(nav2_goal_controller::ControllerServer)
