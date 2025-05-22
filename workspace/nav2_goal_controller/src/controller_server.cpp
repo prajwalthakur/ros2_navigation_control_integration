@@ -342,7 +342,7 @@ bool ControllerServer::findGoalCheckerId(
 void ControllerServer::computeControl()
 {
   std::lock_guard<std::mutex> lock(dynamic_params_lock_);
-
+  publishPseudoVel();
   RCLCPP_INFO(get_logger(), "Received a goal, begin computing control effort.");
 
   try {
@@ -354,21 +354,28 @@ void ControllerServer::computeControl()
       action_server_->terminate_current();
       return;
     }
-
+    RCLCPP_INFO(get_logger(), "after if else.");
     std::string gc_name = action_server_->get_current_goal()->goal_checker_id;
     std::string current_goal_checker;
-    if (findGoalCheckerId(gc_name, current_goal_checker)) {
-      current_goal_checker_ = current_goal_checker;
-    } else {
-      action_server_->terminate_current();
-      return;
+    // if (findGoalCheckerId(gc_name, current_goal_checker)) {
+    //   current_goal_checker_ = current_goal_checker;
+    // } else {
+    //   action_server_->terminate_current();
+    //   return;
+    // }
+    //action_server_->get_current_goal()->goal
+    publishPseudoVel();
+    rclcpp::Rate r(10);
+    while (true) {
+        publishPseudoVel();
+        r.sleep();
     }
-    publishPseudoVel(action_server_->get_current_goal()->goal)
     //setPlannerPath(action_server_->get_current_goal()->path);
     progress_checker_->reset();
 
     last_valid_cmd_time_ = now();
     rclcpp::WallRate loop_rate(controller_frequency_);
+    
     while (rclcpp::ok()) {
       if (action_server_ == nullptr || !action_server_->is_server_active()) {
         RCLCPP_DEBUG(get_logger(), "Action server unavailable or inactive. Stopping.");
@@ -411,7 +418,7 @@ void ControllerServer::computeControl()
   } catch (std::exception & e) {
     RCLCPP_ERROR(this->get_logger(), "%s", e.what());
     publishZeroVelocity();
-    std::shared_ptr<Action::Result> result = std::make_shared<Action::Result>();
+    std::shared_ptr<ActionToGoal::Result> result = std::make_shared<ActionToGoal::Result>();
     action_server_->terminate_current(result);
     return;
   }
@@ -425,7 +432,8 @@ void ControllerServer::computeControl()
 }
 
 // publish a constant velocity to check the controller server functionality
-void ControllerServer::publishPseudoVel(const geometry_msgs::msg::PoseStamped & goal){
+void ControllerServer::publishPseudoVel(){
+  //const geometry_msgs::msg::PoseStamped & goal
   ControllerServer::publishConstantVelocity();
 }
 void ControllerServer::setPlannerPath(const nav_msgs::msg::Path & path)
@@ -493,7 +501,7 @@ void ControllerServer::computeAndPublishVelocity()
     }
   }
 
-  std::shared_ptr<Action::Feedback> feedback = std::make_shared<Action::Feedback>();
+  std::shared_ptr<ActionToGoal::Feedback> feedback = std::make_shared<ActionToGoal::Feedback>();
   feedback->speed = std::hypot(cmd_vel_2d.twist.linear.x, cmd_vel_2d.twist.linear.y);
 
   // Find the closest pose to current pose on global path
@@ -546,7 +554,9 @@ void ControllerServer::updateGlobalPath()
       action_server_->terminate_current();
       return;
     }
-    setPlannerPath(goal->path);
+    //setPlannerPath(goal->path);
+    //action_server_->get_current_goal()->goal
+    publishPseudoVel();
   }
 }
 
@@ -578,7 +588,7 @@ void ControllerServer::publishConstantVelocity()
   velocity.twist.angular.x = 0;
   velocity.twist.angular.y = 0;
   velocity.twist.angular.z = 0.02;
-  velocity.twist.linear.x = 0.2;
+  velocity.twist.linear.x = 2.0;
   velocity.twist.linear.y = 0;
   velocity.twist.linear.z = 0;
   velocity.header.frame_id = costmap_ros_->getBaseFrameID();

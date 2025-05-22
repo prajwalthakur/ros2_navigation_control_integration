@@ -21,10 +21,21 @@
 #include <vector>
 #include <unordered_map>
 #include <mutex>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <iterator>
+#include <memory>
+#include <string>
+#include <vector>
+#include <utility>
+
 
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav_msgs/msg/path.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav2_msgs/action/compute_path_to_pose.hpp"
 #include "nav2_msgs/action/compute_path_through_poses.hpp"
@@ -39,9 +50,16 @@
 #include "pluginlib/class_list_macros.hpp"
 #include "nav2_core/global_planner.hpp"
 #include "nav2_msgs/srv/is_path_valid.hpp"
+#include "builtin_interfaces/msg/duration.hpp"
+#include "lifecycle_msgs/msg/state.hpp"
+#include "nav2_util/node_utils.hpp"
+#include "nav2_util/geometry_utils.hpp"
+#include "nav2_costmap_2d/cost_values.hpp"
+
 
 namespace nav2_planner
-{
+{ 
+  
 /**
  * @class nav2_planner::PlannerServer
  * @brief An action server implements the behavior tree's ComputePathToPose
@@ -50,6 +68,7 @@ namespace nav2_planner
 class PlannerServer : public nav2_util::LifecycleNode
 {
 public:
+  bool if_mapless_nav_;
   /**
    * @brief A constructor for nav2_planner::PlannerServer
    * @param options Additional options to control creation of the node.
@@ -247,7 +266,10 @@ protected:
 
   // Publishers for the path
   rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr plan_publisher_;
-
+  
+  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
+  geometry_msgs::msg::PoseStamped robot_pose_from_odom_;
+  void onOdomRecieve(const nav_msgs::msg::Odometry::SharedPtr);
   // Service to deterime if the path is valid
   rclcpp::Service<nav2_msgs::srv::IsPathValid>::SharedPtr is_path_valid_service_;
 };

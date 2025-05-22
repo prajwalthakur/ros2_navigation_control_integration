@@ -1,6 +1,6 @@
 # ROS2 Navigation And control Package Integration
 
-This repository demonstrates the integration of ROS2 Control, Nav2, and Gazebo for autonomous mobile robot navigation for a maplless navigation.
+This repository demonstrates the integration of ROS2 Control, Nav2, and Gazebo for autonomous mobile robot navigation for a mapless navigation.
 
 ## Objectives
 Deepen understanding of system-level integration in ROS2
@@ -32,11 +32,10 @@ Deepen understanding of system-level integration in ROS2
 
 - CUDA-enabled GPU recommended; CPU-only mode supported (See notes at the end of the readme)
 
-<!-- ## Demo Videos:
+## Demo Videos:
 
-`non_ros/example_video/`: Matplotlib-based simulation
+`example_video`: mapless_navigation.mp4
 
-`mppi_planner/example_video/`: ROS2 + Gazebo simulation -->
 
 # Setup:
 Assumes Cuda compatible hardware (check notes, if needs to run in cpu only)
@@ -66,9 +65,9 @@ make sure you are in ros2 workspace.
 5. run `ros2 launch diff_drive_control launch_sim.launch.py world:=/root/workspace/src/diff_drive/worlds/obstacles.world`
 6. run `rviz2 -d /root/workspace/src/diff_drive/config/main.rviz` to launch the rviz
 7. run `ros2 launch diff_drive_control navigation_launch.py` to launch the controller server, which launch the costmap to generate the 2d costmap
+8. select goal pose from the rviz tool     
      
-     
-     ![alt text](images/local_costmap.png)
+
 
 
 <!-- ## Steps to run the simulation in simple python and Matplotlib simulation
@@ -133,14 +132,14 @@ https://github.com/user-attachments/assets/8f08e8bb-debb-4088-8320-08d60748fde6
 - [] Add Unit Test Cases
 - [] Implement MPPI in C++
 - [] Utilize the local costmap to generate motion plans using MPPI.
-- [] CVar MPPI for stochastic dynamics
+- [] CVar MPPI for stochastic dynamics -->
 
 
 ## Note:
 If the system doesnt support CUDA, then, in ros2_nav.Dockerfile:
 - Change the base image from  `FROM  nvidia/cuda:12.6.0-cudnn-devel-ubuntu22.04` to `FROM ubuntu:22.04`
 - Change the jax-cuda installation from `RUN pip3 install  "jax[cuda12]" ` to  `RUN pip3 install "jax[cpu]" -f https://storage.googleapis.com/jax-releases/jax_releases.html`
--In `deploy/devel.sh` change mode from `"gpu"` to `"cpu"` -->
+-In `deploy/devel.sh` change mode from `"gpu"` to `"cpu"`
 
 ### Note:
 The robot description is forked from [https://github.com/joshnewans/articubot_one](https://github.com/joshnewans/articubot_one) 

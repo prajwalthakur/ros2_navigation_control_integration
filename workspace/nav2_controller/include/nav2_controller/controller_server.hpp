@@ -110,7 +110,7 @@ protected:
   using Action = nav2_msgs::action::FollowPath;
   using ActionServer = nav2_util::SimpleActionServer<Action>;
 
-  using ActionToPose = nav2_msgs::action::ComputePathToPose;
+  // using ActionToPose = nav2_msgs::action::ComputePathToPose;
 
   // Our action server implements the FollowPath action
   std::unique_ptr<ActionServer> action_server_;

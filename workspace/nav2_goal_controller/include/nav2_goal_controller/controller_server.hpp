@@ -34,6 +34,7 @@
 #include "nav2_msgs/action/follow_path.hpp"
 #include "nav2_msgs/action/follow_path.hpp"
 #include "nav2_msgs/action/navigate_to_goal.hpp"
+#include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "nav2_msgs/msg/speed_limit.hpp"
 #include "nav_2d_utils/odom_subscriber.hpp"
 #include "nav_2d_utils/conversions.hpp"
@@ -129,8 +130,8 @@ protected:
 
   // using Action = nav2_msgs::action::FollowPath;
   // using ActionServer = nav2_util::SimpleActionServer<Action>;
-  
-  using ActionToGoal = nav2_msgs::action::NavigateToGoal;
+
+  using ActionToGoal = nav2_msgs::action::NavigateToPose;
   using ActionToGoalServer = nav2_util::SimpleActionServer<ActionToGoal>;
   // Our action server implements the FollowPath action
   std::unique_ptr<ActionToGoalServer> action_server_;
@@ -177,7 +178,7 @@ protected:
    * @brief publish a constant velocity to check the controller server functionality
    * @param goal goal recieved from action server
    */
-  void publishPseudoVel(const geometry_msgs::msg::PoseStamped & goal);
+  void publishPseudoVel();
     
   /**
    * @brief Calculates velocity and publishes to "cmd_vel" topic
@@ -200,7 +201,7 @@ protected:
   /**
    * @brief calls velocity publisher to publish constant velocity
    */
-  void ControllerServer::publishConstantVelocity()
+  void publishConstantVelocity();
 
   /**
    * @brief Checks if goal is reached
