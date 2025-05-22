@@ -37,6 +37,11 @@ Deepen understanding of system-level integration in ROS2
 `example_video`: mapless_navigation.mp4
 
 
+
+https://github.com/user-attachments/assets/c65bb692-e3b2-4632-b2f7-a70809ba38fe
+
+
+
 # Setup:
 Assumes Cuda compatible hardware (check notes, if needs to run in cpu only)
 ## Docker Image Installation 
