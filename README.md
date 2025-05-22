@@ -3,7 +3,7 @@
 This repository demonstrates the integration of ROS2 Control, Nav2, and Gazebo for autonomous mobile robot navigation for a mapless navigation.
 
 ## Objectives
-Deepen understanding of system-level integration in ROS2
+Demonstrate system-level integration capabilities in ROS 2.
 
 ### Learn to configure and use:
 
