@@ -32,8 +32,8 @@ Demonstrate system-level integration capabilities in ROS 2.
 
 - CUDA-enabled GPU recommended; CPU-only mode supported (See notes at the end of the readme)
 
-## Demo Videos:
-
+## Example Videos:
+ The following examples shows the mapless navigation of an Autonomous mobile robot, which infers the local costmap to generate the obstacle free motion plans.
 `example_video`: mapless_navigation.mp4
 
 
